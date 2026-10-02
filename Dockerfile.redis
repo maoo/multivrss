@@ -1,0 +1,12 @@
+FROM redis:8-alpine
+
+# Stock image USER is redis, so its entrypoint never chowns a root-owned
+# Fly volume. Stay root here; docker/redis-entrypoint.sh drops privileges
+# after fixing /data.
+USER root
+COPY docker/redis-entrypoint.sh /usr/local/bin/fly-redis-entrypoint.sh
+RUN chmod +x /usr/local/bin/fly-redis-entrypoint.sh
+
+ENTRYPOINT ["fly-redis-entrypoint.sh"]
+# Fly's private network is IPv6-only. 0.0.0.0 does not accept those connections.
+CMD ["redis-server", "--appendonly", "yes", "--bind", "0.0.0.0", "--bind", "::", "--protected-mode", "no"]

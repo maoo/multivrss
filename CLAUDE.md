@@ -264,6 +264,11 @@ Every new component, page, or feature must satisfy these before merge. Treat fai
 
 **CI/CD pipeline:** push to `dev` → single workflow run: quality-gate (tsc, lint, test, audit) → Docker build → GHCR push → SSH deploy (sync compose file from git, prisma migrate, docker compose pull + up --force-recreate, health check on `localhost:3001`, auto-rollback on failure). Push to `main` runs the same pipeline targeting production. PRs trigger quality-gate only (no deploy).
 
+**Fly.io** (`fly.toml`, `fly.redis.toml`; walkthrough in `SELF_HOSTING.md` section 11). This is a self-host path, separate from the SSH deploy above.
+- `fly.toml`: `app` process (`node server.js` on 3000) and `worker` process (`node dist/worker.js`) from the same image. `[deploy] release_command` runs `npx prisma migrate deploy` — the runner stage copies `prisma/` and `prisma.config.ts` for that. Health check is `GET /api/health`.
+- `fly.redis.toml`: Redis 8 on a volume, no public service and no password (`REDIS_HOST=<redis-app>.internal`). Built from `Dockerfile.redis`, which chowns the root-owned Fly volume before the image drops to user `redis`. The client only reads `REDIS_HOST` / `REDIS_PORT`.
+- Postgres is `fly postgres create` + `fly postgres attach` (sets `DATABASE_URL`). Not a file in the repo.
+
 ## Versioning & Changelog (maintainers)
 
 Versioning is manual — `release-please` was tried and removed (repo policy blocks GitHub Actions from opening PRs), so don't re-propose CI-based auto-bumping/auto-changelog without solving that constraint first.

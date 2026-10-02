@@ -122,7 +122,10 @@ Running a long-lived instance for personal use takes a few more steps than
 the quickstart: registering OAuth apps, generating secrets, keeping the
 worker process alive, and (optionally) putting the app behind your own
 domain. The full walkthrough, plus updates and troubleshooting, is in
-[SELF_HOSTING.md](./SELF_HOSTING.md).
+[SELF_HOSTING.md](./SELF_HOSTING.md). Fly.io config for the app, the worker,
+and private Redis is in [`fly.toml`](./fly.toml) and
+[`fly.redis.toml`](./fly.redis.toml); the deploy steps are
+[section 11 of that guide](./SELF_HOSTING.md#11-deploying-on-flyio).
 
 ## Project layout
 

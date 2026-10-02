@@ -1,0 +1,24 @@
+# Private Redis for BullMQ and the rate limiter. No public service: the app
+# reaches this Machine at <app>.internal:6379 (see REDIS_HOST in fly.toml).
+# Do not add a [[services]] or [http_service] block, and do not allocate a
+# public IP — Redis has no password, matching docker-compose.prod.yml.
+#
+# `app` must match REDIS_HOST in fly.toml (`<app>.internal`).
+# `primary_region` must match fly.toml.
+
+app = "multivrss-redis"
+primary_region = "ams"
+
+# Wrapper around redis:8-alpine. The stock image runs as user redis and
+# cannot create files on the root-owned Fly volume.
+[build]
+  dockerfile = "Dockerfile.redis"
+
+[mounts]
+  source = "redis_data"
+  destination = "/data"
+  initial_size = "1gb"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
